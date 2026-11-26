@@ -17,6 +17,8 @@ config({path:envFilePath});
     export const USER_REFRESH_SECRET_KEY :string= process.env.USER_REFRESH_SECRET_KEY!
     export const ADMIN_ACCESS_SECRET_KEY :string= process.env.ADMIN_ACCESS_SECRET_KEY!
     export const ADMIN_REFRESH_SECRET_KEY:string = process.env.ADMIN_REFRESH_SECRET_KEY!
+    export const GOOGLE_CLIENT_ID:string = process.env.GOOGLE_CLIENT_ID!
+    export const GOOGLE_SECRET:string = process.env.GOOGLE_SECRET!
     export const HASH_SALT:number= Number(process.env.HASH_SALT)!
     export const ACCESS_EX :number= Number(process.env.ACCESS_EX)!
     export const REFRESH_EX:number=Number(process.env.REFRESH_EX)!
@@ -24,4 +26,8 @@ config({path:envFilePath});
     export const APP_EMAIL:string= process.env.APP_EMAIL!
     export const MAX_SEND_RETRIES:string= process.env.MAX_SEND_RETRIES!
     export const MAX_OTP_RETRIES:string= process.env.MAX_OTP_RETRIES!
-    
+    export const AWS_ACCESS_KEY_ID:string = process.env.AWS_ACCESS_KEY_ID!
+    export const AWS_SECRET_ACCESS_KEY :string = process.env.AWS_SECRET_ACCESS_KEY!
+    export const AWS_REGION :string = process.env.AWS_REGION!
+    export const AWS_BUCKET_NAME :string = process.env.AWS_BUCKET_NAME!
+    export const AWS_PRE_SIGNED_EXP:number=Number(process.env.AWS_PRE_SIGNED_EXP)!

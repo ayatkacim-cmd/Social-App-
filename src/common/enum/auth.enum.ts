@@ -1,4 +1,4 @@
 export enum authEnum {
-    Basic,
-    Bearer 
+    Basic ="Basic",
+    Bearer ="Bearer" 
 }

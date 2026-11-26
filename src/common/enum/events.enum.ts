@@ -1,4 +1,4 @@
 export enum eventsEnum {
-    signup ,
-    forget
+    signup ="signup" ,
+    forget="forget"
 }

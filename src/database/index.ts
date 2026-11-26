@@ -1,2 +1,2 @@
 export {default as dbConnect} from "./connection"
-export {userModel} from "./model"
+export {userModel , postModel , commentModel , followModel} from "./model"

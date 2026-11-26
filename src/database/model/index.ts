@@ -1,3 +1,4 @@
 export {default as userModel} from "./user.model"
-export { SocialUser, Session, Challenge } from './social.model';
-export type { UserDoc, Privacy, SessionDoc, ChallengeDoc } from './social.model';
+export {default as postModel} from "./post.model"
+export {default as commentModel} from "./comment.model"
+export {default as followModel} from "./follow.model"

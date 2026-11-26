@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import {DB_URI}  from "../config/config.service"
-//import {redisConnection} from "./redis.connection.js"
+//import {redisConnection} from "./redis.connection"
 
 export default async ()=>{
     try {

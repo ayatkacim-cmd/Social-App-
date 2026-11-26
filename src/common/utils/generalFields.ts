@@ -25,6 +25,8 @@ export default{
     limit : (lang : languageEnum)=> z.coerce.number().gte(1),
     userId : (lang : languageEnum) => z.string().min(24).max(24).refine((value) => isValidObjectId(value),{error: "This is't valid objectId"})
 ,
+    postId : (lang : languageEnum) => z.string().min(24).max(24).refine((value) => isValidObjectId(value),{error: "This is't valid objectId"}),
+    commentId : (lang : languageEnum) => z.string().min(24).max(24).refine((value) => isValidObjectId(value),{error: "This is't valid objectId"}),
     headers:(lang : languageEnum)=> z.object({
         authorization :(lang : languageEnum)=> z.string().jwt({alg:"HS256"}),
         "accecpt-lan" : (lang : languageEnum)=> z.enum(["ar", "en"])

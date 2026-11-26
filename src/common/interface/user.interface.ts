@@ -1,6 +1,8 @@
-import { genderEnum, providerEnum, roleEnum } from "../enum"
+import { genderEnum, privacyEnum, providerEnum, roleEnum } from "../enum"
 
 export interface IUser {
+    covers?:string[];
+    paranoid?:boolean;
     firstName: string;
     lastName: string;
     userName?: string;
@@ -13,6 +15,7 @@ export interface IUser {
     confirmEmail: boolean;
     phone: string;
     provider: providerEnum;
+    privacy: privacyEnum;
     role: roleEnum;
     changedAt: number;
     createdAt: string;

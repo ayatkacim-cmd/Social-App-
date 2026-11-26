@@ -1,6 +1,7 @@
-import { Require_id ,HydratedDocument,ApplyBasicCreateCasting ,DeepPartial ,Model, CreateOptions, QueryFilter, ProjectionType, QueryOptions, FlattenMaps, PopulateOptions, ObjectId } from "mongoose"
+import mongoose, { PipelineStage, Require_id ,HydratedDocument,ApplyBasicCreateCasting ,DeepPartial ,Model, CreateOptions, QueryFilter, ProjectionType, QueryOptions, FlattenMaps, PopulateOptions, ObjectId, UpdateQuery, UpdateWriteOpResult, MongooseUpdateQueryOptions, MongooseBaseQueryOptions } from "mongoose"
 import type * as mongodb from "mongodb";
 import { IPaginate } from "../interface";
+import { HUser } from "../../database/model/user.model";
 //import { BadRequestException, NotFoundException } from "../exceptions/index.js"
 
 
@@ -10,13 +11,11 @@ export class BaseRepository<TRawDocType> {
 
         constructor(private model: Model<TRawDocType>) {}
 
-        // overload 1
         create(args: {
             data: createObjectType<TRawDocType>;
             options?: CreateOptions;
         }): Promise<HydratedDocument<TRawDocType>>;
 
-        // overload 2
         create(args: {
             data: createObjectType<TRawDocType>[];
             options?: CreateOptions;
@@ -39,7 +38,7 @@ export class BaseRepository<TRawDocType> {
                 filter?: QueryFilter<TRawDocType>,
                 projection?: ProjectionType<TRawDocType> | null | undefined,
                 options?: QueryOptions<TRawDocType> & mongodb.Abortable | null | undefined
-        }): Promise<HydratedDocument<TRawDocType>|FlattenMaps<TRawDocType> | null> {
+        }): Promise<HydratedDocument<TRawDocType> | null> {
                 let query = this.model.findOne(filter, projection)
 
                 if (options?.populate) {
@@ -50,7 +49,7 @@ export class BaseRepository<TRawDocType> {
                     query.lean(options.lean)
                 }
 
-                return query.exec()
+                return await query.exec()
         }
 
 
@@ -59,7 +58,7 @@ export class BaseRepository<TRawDocType> {
                 projection,
                 options
             }: {
-                id: ObjectId,
+                id: mongoose.Types.ObjectId,
                 projection?: ProjectionType<TRawDocType> | null | undefined,
                 options?: QueryOptions<TRawDocType> & mongodb.Abortable | null | undefined
             }): Promise<HydratedDocument<TRawDocType> | FlattenMaps<TRawDocType> | null> {
@@ -71,10 +70,53 @@ export class BaseRepository<TRawDocType> {
             if (options?.lean) {
                 query.lean(options.lean)
             }
-            return query.exec()
+            return await query.exec()
         }
         
+        async find({
+                filter = {},
+                projection,
+                options
+            }: {
+                filter?: QueryFilter<TRawDocType>,
+                projection?: ProjectionType<TRawDocType> | null | undefined,
+                options?: QueryOptions<TRawDocType> & mongodb.Abortable | null | undefined
+        }): Promise<HydratedDocument<TRawDocType>[]> {
+                let query = this.model.find(filter, projection)
 
+                if (options?.sort) {
+                    query.sort(options.sort)
+                }
+                if (options?.skip) {
+                    query.skip(options.skip)
+                }
+                if (options?.limit) {
+                    query.limit(options.limit)
+                }
+                if (options?.populate) {
+                    query.populate(options.populate as PopulateOptions[])
+                }
+
+                return await query.exec()
+        }
+
+        async aggregate<TResult = any>(pipeline: PipelineStage[]): Promise<TResult[]> {
+                return await this.model.aggregate<TResult>(pipeline)
+        }
+
+        async countDocument({
+                    filter,
+                    options
+                }: {
+                    filter?: QueryFilter<TRawDocType>,
+                    options?: (
+                        mongodb.CountOptions &
+                        MongooseBaseQueryOptions<TRawDocType> &
+                        mongodb.Abortable
+                    ) | null
+                }): Promise<number> {
+                    return await this.model.countDocuments(filter, options)
+        }
 
         async pagination({
                 filter = {},
@@ -104,7 +146,7 @@ export class BaseRepository<TRawDocType> {
                 }
                 let count = await this.model.countDocuments(filter)
                 let totalPages = Math.ceil(count / limit)
-                let hasNextPage = page != totalPages
+                let hasNextPage = page < totalPages
                 let result = await data.exec()
             return {
                 data : result,
@@ -119,21 +161,106 @@ export class BaseRepository<TRawDocType> {
 
         }
 
+        async updateOne({
+                filter,
+                update,
+                options
+            }: {
+                filter: QueryFilter<TRawDocType>,
+                update: UpdateQuery<TRawDocType>,
+                options?: (mongodb.UpdateOptions & MongooseUpdateQueryOptions<TRawDocType>) | null
+            }): Promise<UpdateWriteOpResult> {
 
+            return await this.model.updateOne(filter, update, options)
 
+        }
 
+        async updateMany({
+            filter,
+            update,
+            options
+        }: {
+            filter: QueryFilter<TRawDocType>,
+            update: UpdateQuery<TRawDocType>,
+            options?: (mongodb.UpdateOptions & MongooseUpdateQueryOptions<TRawDocType>) | null
+        }): Promise<UpdateWriteOpResult> {
+            return await this.model.updateMany(filter, update, options)
+        }
 
+        async findOneAndUpdate({
+                filter,
+                update,
+                options
+            }: {
+                filter: QueryFilter<TRawDocType>,
+                update: UpdateQuery<TRawDocType>,
+                options?: QueryOptions<TRawDocType> | null
+            }) {
 
-        // async updateOne({model, data , where}){
-        //     return await model.updateOne(where ,data, {returnDocument: "after"})
-        // }
+            return await this.model.findOneAndUpdate(
+                filter,
+                update,
+                { ...options, returnDocument: "after" }
+            )
+        }
 
-        // async deleteOne ({ model , where })  {
-    
-        //     if (!model) BadRequestException("model not provided")
-        //     return model.deleteOne(where)
-        // }
+        async findByIdAndUpdate({
+                id,
+                update,
+                options
+            }: {
+                id?: mongodb.ObjectId | any,
+                update?: UpdateQuery<TRawDocType>,
+                options?: QueryOptions<TRawDocType> | null
+            }):Promise<HydratedDocument<TRawDocType> | null> {
+                return await this.model.findByIdAndUpdate(
+                    id,
+                    update,
+                    { ...options, returnDocument: "after" }
+                )
+        }
 
+        async deleteOne({
+                filter,
+                options
+            }: {
+                filter?: QueryFilter<TRawDocType>,
+                options?: (mongodb.DeleteOptions & MongooseBaseQueryOptions<TRawDocType>) | null
+            }): Promise<mongodb.DeleteResult> {
+                return await this.model.deleteOne(filter, options)
+        }
+
+        async deleteMany({
+                filter,
+                options
+            }: {
+                filter?: QueryFilter<TRawDocType>,
+                options?: (mongodb.DeleteOptions & MongooseBaseQueryOptions<TRawDocType>) | null
+            }): Promise<mongodb.DeleteResult> {
+
+                return await this.model.deleteMany(filter, options)
+
+        }
+
+        async findOneAndDelete({
+                    filter,
+                    options
+            }: {
+                    filter?: QueryFilter<TRawDocType> | null,
+                    options?: QueryOptions<TRawDocType> | null
+            }) {
+                    return await this.model.findOneAndDelete(filter, options)
+        }
+
+        async findByIdAndDelete({
+                    id,
+                    options
+                }: {
+                    id?: mongodb.ObjectId | any,
+                    options?: QueryOptions<TRawDocType> | null
+                }) {
+                    return await this.model.findByIdAndDelete(id, options)
+        }
     }
 
 

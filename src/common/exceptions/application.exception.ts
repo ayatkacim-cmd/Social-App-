@@ -17,6 +17,11 @@ export class NotFoundException extends ApplicationException {
     super(message, 404, cause)
   }
 }
+export class ForbiddenException extends ApplicationException {
+  constructor(message: string = "Forbidden", cause?: unknown) {
+    super(message, 403, cause)
+  }
+}
 export class ConflictException extends ApplicationException {
   constructor(message: string = "Conflict", cause?: unknown) {
     super(message, 409, cause)
